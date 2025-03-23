@@ -19,11 +19,36 @@ class ViewInquiryFile extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\EditAction::make(),
-            Actions\DeleteAction::make(),
+        $actions = [];
+        $user = Auth::user();
 
-            Action::make('acknowledge')
+        // All users can see these actions
+        $actions[] = Actions\EditAction::make()
+            ->visible(function() use ($user) {
+                // Investigators can only edit if they are the dealing officer
+                if ($user->role_id === 2) {
+                    return $user->id === $this->record->dealing_officer;
+                }
+
+                // OIC and Admin can always edit
+                return true;
+            });
+
+        $actions[] = Actions\Action::make('exportPDF')
+            ->label('Export PDF')
+            ->icon('heroicon-o-document-arrow-down')
+            ->url(fn () => route('inquiry-file.export-pdf', ['id' => $this->record->id]))
+            ->openUrlInNewTab()
+            ->color('success');
+
+        // Only OIC and Admin can delete
+        if ($user->role_id !== 2) {
+            $actions[] = Actions\DeleteAction::make();
+        }
+
+        // Acknowledgment action for investigators
+        if ($user->role_id === 2 && $user->id === $this->record->dealing_officer && $this->record->acknowledged_at === null) {
+            $actions[] = Action::make('acknowledge')
                 ->label('Acknowledge')
                 ->icon('heroicon-o-check-badge')
                 ->action(function () {
@@ -52,14 +77,12 @@ class ViewInquiryFile extends ViewRecord
                         ->send();
                 })
                 ->requiresConfirmation()
-                ->visible(function () {
-                    $user = Auth::user();
-                    return $user->id === $this->record->dealing_officer &&
-                           $this->record->acknowledged_at === null;
-                })
-                ->color('success'),
+                ->color('success');
+        }
 
-            Action::make('changeStatus')
+        // Status update action for investigators - only if acknowledged
+        if ($user->role_id === 2 && $user->id === $this->record->dealing_officer && $this->record->acknowledged_at !== null) {
+            $actions[] = Action::make('changeStatus')
                 ->label('Update Status')
                 ->icon('heroicon-o-arrow-path')
                 ->form([
@@ -116,15 +139,12 @@ class ViewInquiryFile extends ViewRecord
                         ->title('Status Updated')
                         ->success()
                         ->send();
-                })
-                ->visible(function () {
-                    $user = Auth::user();
-                    return $user->id === $this->record->dealing_officer &&
-                           $this->record->acknowledged_at !== null;
-                }),
+                });
+        }
 
-            // Add OIC Comment action
-            Action::make('addOicComment')
+        // OIC Comment action
+        if ($user->role_id === 1) {
+            $actions[] = Action::make('addOicComment')
                 ->label('Add Comment')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
                 ->form([
@@ -196,15 +216,9 @@ class ViewInquiryFile extends ViewRecord
                         ->title('Comment Added')
                         ->success()
                         ->send();
-                })
-                ->visible(fn () => Auth::user()->role_id === 1), // Only visible to OIC
+                });
+        }
 
-            Action::make('exportPDF')
-                ->label('Export PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->url(fn () => route('inquiry-file.export-pdf', ['id' => $this->record->id]))
-                ->openUrlInNewTab()
-                ->color('success'),
-        ];
+        return $actions;
     }
 }

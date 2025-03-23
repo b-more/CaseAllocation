@@ -31,6 +31,11 @@ class InquiryFile extends Model
         'meta_data',
         'pink_file_id',
         'acknowledged_at',
+        'contacted_complainant',
+        'recorded_statement',
+        'apprehended_suspects',
+        'warned_cautioned',
+        'released_on_bond',
     ];
 
     protected $casts = [
@@ -40,6 +45,11 @@ class InquiryFile extends Model
         'value_of_property_recovered' => 'decimal:2',
         'meta_data' => 'json',
         'acknowledged_at' => 'datetime',
+        'contacted_complainant' => 'boolean',
+        'recorded_statement' => 'boolean',
+        'apprehended_suspects' => 'boolean',
+        'warned_cautioned' => 'boolean',
+        'released_on_bond' => 'boolean',
     ];
 
     /**

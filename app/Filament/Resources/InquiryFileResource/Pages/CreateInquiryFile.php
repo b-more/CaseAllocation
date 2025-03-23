@@ -23,7 +23,28 @@ class CreateInquiryFile extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return $this->getResource()::getUrl('view', ['record' => $this->record->id]);
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // Set default values for date and time
+        $data['date'] = now()->toDateString();
+        $data['time'] = now()->toTimeString();
+
+        // Set dealing_officer to the current user if they are an investigator
+        $user = Auth::user();
+        if ($user->role_id == 2) { // Investigator
+            $data['dealing_officer'] = $user->id;
+        } else if (!isset($data['dealing_officer']) && isset($data['pink_file_id'])) {
+            // If dealing officer is not set, get it from the pink file
+            $pinkFile = PinkFile::find($data['pink_file_id']);
+            if ($pinkFile) {
+                $data['dealing_officer'] = $pinkFile->assigned_to;
+            }
+        }
+
+        return $data;
     }
 
     protected function handleRecordCreation(array $data): Model
@@ -121,8 +142,8 @@ class CreateInquiryFile extends CreateRecord
                 Log::info('Found dealing officer: ' . $dealingOfficer->name);
 
                 Notification::make()
-                    ->title('New Inquiry File Assigned')
-                    ->body("You have been assigned inquiry file: {$record->if_number}")
+                    ->title('New Inquiry File Created')
+                    ->body("You have created inquiry file: {$record->if_number}. Please proceed with the investigation.")
                     ->actions([
                         \Filament\Notifications\Actions\Action::make('view')
                             ->button()
@@ -132,12 +153,25 @@ class CreateInquiryFile extends CreateRecord
 
                 Log::info('Notification sent to dealing officer: ' . $dealingOfficer->id);
 
-                // Send SMS if officer has a phone number
-                if ($dealingOfficer->phone) {
-                    $message = "New case assignment: You have been assigned to inquiry file {$record->if_number}. Please login to the system to acknowledge.";
-                    SmsService::sendMessage($message, $dealingOfficer->phone);
+                // If the creator is not the dealing officer, send an additional notification
+                if (Auth::id() != $record->dealing_officer) {
+                    Notification::make()
+                        ->title('New Inquiry File Assigned')
+                        ->body("You have been assigned inquiry file: {$record->if_number}")
+                        ->actions([
+                            \Filament\Notifications\Actions\Action::make('view')
+                                ->button()
+                                ->url(InquiryFileResource::getUrl('view', ['record' => $record->id]))
+                        ])
+                        ->sendToDatabase($dealingOfficer);
 
-                    Log::info('SMS sent to dealing officer at: ' . $dealingOfficer->phone);
+                    // Send SMS if officer has a phone number
+                    if ($dealingOfficer->phone) {
+                        $message = "New case assignment: You have been assigned to inquiry file {$record->if_number}. Please login to the system to acknowledge.";
+                        SmsService::sendMessage($message, $dealingOfficer->phone);
+
+                        Log::info('SMS sent to dealing officer at: ' . $dealingOfficer->phone);
+                    }
                 }
             } else {
                 Log::error('Failed to find dealing officer with ID: ' . $record->dealing_officer);
@@ -155,34 +189,6 @@ class CreateInquiryFile extends CreateRecord
 
             if ($pinkFile) {
                 Log::info('Found pink file with complainant: ' . $pinkFile->complainant_name);
-
-                // If the dealing officer wasn't explicitly set, use the one from the pink file
-                if (!$record->dealing_officer && $pinkFile->assigned_to) {
-                    $record->dealing_officer = $pinkFile->assigned_to;
-                    $record->save();
-
-                    Log::info('Updated dealing officer from pink file: ' . $pinkFile->assigned_to);
-
-                    // Send notification to the assigned officer if it was added from the pink file
-                    $dealingOfficer = User::find($pinkFile->assigned_to);
-                    if ($dealingOfficer) {
-                        Notification::make()
-                            ->title('New Inquiry File Assigned')
-                            ->body("You have been assigned inquiry file: {$record->if_number}")
-                            ->actions([
-                                \Filament\Notifications\Actions\Action::make('view')
-                                    ->button()
-                                    ->url(InquiryFileResource::getUrl('view', ['record' => $record->id]))
-                            ])
-                            ->sendToDatabase($dealingOfficer);
-
-                        // Send SMS if officer has a phone number
-                        if ($dealingOfficer->phone) {
-                            $message = "New case assignment: You have been assigned to inquiry file {$record->if_number}. Please login to the system to acknowledge.";
-                            SmsService::sendMessage($message, $dealingOfficer->phone);
-                        }
-                    }
-                }
 
                 // Notify the OIC that an inquiry file has been created for this pink file
                 $oicUsers = User::where('role_id', 1)->get(); // OIC role

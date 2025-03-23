@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
 
 class InquiryFileResource extends Resource
 {
@@ -36,6 +37,9 @@ class InquiryFileResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user = Auth::user();
+        $isInvestigator = $user->role_id == 2;
+
         return $form
             ->schema([
                 Forms\Components\Group::make()
@@ -45,27 +49,52 @@ class InquiryFileResource extends Resource
                                 Forms\Components\TextInput::make('if_number')
                                     ->label('Inquiry File Number')
                                     ->default(fn() => InquiryFile::generateInquiryNumber())
-                                    ->disabled()
+
                                     ->dehydrated()
                                     ->required(),
 
                                 Forms\Components\TimePicker::make('time')
                                     ->seconds(false)
+                                    ->label('Time of Opening File')
+                                    ->default(now())
+                                    ->disabled()
                                     ->required(),
 
                                 Forms\Components\DatePicker::make('date')
+                                    ->label('Date of Opening File')
                                     ->default(now())
+                                    ->disabled()
                                     ->required(),
 
                                 Forms\Components\TextInput::make('cr_number')
                                     ->label('CR Number')
                                     ->placeholder('Enter CR number')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
+                                        // If creating a new record, hide this field
+                                        if ($operation === 'create') {
+                                            return false;
+                                        }
+
+                                        // If editing, show only for court-related statuses
+                                        $statusId = $get('if_status_id');
+                                        return in_array($statusId, [3, 4]); // Taken to NPA or Court
+                                    }),
 
                                 Forms\Components\TextInput::make('police_station')
                                     ->label('Police Station/Post')
                                     ->placeholder('Enter police station name')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
+                                        // If creating a new record, hide this field
+                                        if ($operation === 'create') {
+                                            return false;
+                                        }
+
+                                        // If editing, show only for court-related statuses
+                                        $statusId = $get('if_status_id');
+                                        return in_array($statusId, [3, 4]); // Taken to NPA or Court
+                                    }),
 
                                 Forms\Components\Hidden::make('pink_file_id')
                                     ->default(fn() => request()->get('pinkFileId')),
@@ -106,17 +135,17 @@ class InquiryFileResource extends Resource
                                             ->required()
                                             ->maxLength(255),
 
-                                        Forms\Components\TextInput::make('identification')
-                                            ->label('ID/Passport')
-                                            ->maxLength(255),
+                                        // Forms\Components\TextInput::make('identification')
+                                        //     ->label('ID/Passport')
+                                        //     ->maxLength(255),
 
-                                        Forms\Components\TextInput::make('contact')
-                                            ->tel()
-                                            ->maxLength(255),
+                                        // Forms\Components\TextInput::make('contact')
+                                        //     ->tel()
+                                        //     ->maxLength(255),
 
-                                        Forms\Components\Textarea::make('address')
-                                            ->maxLength(500)
-                                            ->columnSpanFull(),
+                                        // Forms\Components\Textarea::make('address')
+                                        //     ->maxLength(500)
+                                        //     ->columnSpanFull(),
                                     ])
                                     ->columns(2)
                                     ->collapsible()
@@ -188,6 +217,29 @@ class InquiryFileResource extends Resource
                                     ->dehydrated(false),
                             ]),
 
+                        Forms\Components\Section::make('Investigation Progress')
+                            ->schema([
+                                Forms\Components\Checkbox::make('contacted_complainant')
+                                    ->label('Contacted Complainant'),
+                                    //->helperText('Check when you have made initial contact with the complainant'),
+
+                                Forms\Components\Checkbox::make('recorded_statement')
+                                    ->label('Recorded Complainant Statement'),
+                                    //->helperText('Check when you have recorded the complainant\'s statement'),
+
+                                Forms\Components\Checkbox::make('apprehended_suspects')
+                                    ->label('Apprehended Suspect(s)'),
+                                    //->helperText('Check when suspect(s) have been apprehended'),
+
+                                Forms\Components\Checkbox::make('warned_cautioned')
+                                    ->label('Warned & Cautioned Suspect(s)'),
+                                    //->helperText('Check when suspect(s) have been warned and cautioned'),
+
+                                Forms\Components\Checkbox::make('released_on_bond')
+                                    ->label('Released Suspect(s) on Bond'),
+                                    //->helperText('Check when suspect(s) have been released on bond'),
+                            ]),
+
                         Forms\Components\Section::make('Officer Information')
                             ->schema([
                                 Forms\Components\Select::make('dealing_officer')
@@ -226,10 +278,17 @@ class InquiryFileResource extends Resource
                                             }
                                         }
 
+                                        // Otherwise, for investigators, default to themselves
+                                        $user = Auth::user();
+                                        if ($user->role_id == 2) {
+                                            return $user->id;
+                                        }
+
                                         return null;
                                     })
                                     ->searchable()
-                                    ->required(),
+                                    ->required()
+                                    ->disabled(fn() => Auth::user()->role_id == 2), // Disabled for investigators
 
                                 Forms\Components\Textarea::make('remarks')
                                     ->placeholder('Enter any additional remarks or notes')
@@ -280,12 +339,14 @@ class InquiryFileResource extends Resource
                 Tables\Columns\TextColumn::make('value_of_property_stolen')
                     ->label('Value Stolen')
                     ->money('ZMW')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('value_of_property_recovered')
                     ->label('Value Recovered')
                     ->money('ZMW')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('status.name')
                     ->label('Status')
@@ -303,7 +364,8 @@ class InquiryFileResource extends Resource
 
                 Tables\Columns\TextColumn::make('officer.name')
                     ->label('Dealing Officer')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 // Show the latest OIC comment
                 Tables\Columns\TextColumn::make('latest_comment')
@@ -317,7 +379,8 @@ class InquiryFileResource extends Resource
                         return $latestStatus ? $latestStatus->oic_comment : null;
                     })
                     ->limit(30)
-                    ->toggleable(),
+                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d M Y')
@@ -357,7 +420,7 @@ class InquiryFileResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\DeleteAction::make(),
 
                 Tables\Actions\Action::make('acknowledge')
                     ->label('Acknowledge')

@@ -3,12 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
-use App\Filament\Widgets\CaseDistributionChart;
-use App\Filament\Widgets\CaseStatisticsWidget;
-use App\Filament\Widgets\InvestigatorDashboardWidget;
-use App\Filament\Widgets\MonthlyCaseTrendChart;
-use App\Filament\Widgets\OfficerPerformanceChart;
-use App\Filament\Widgets\RecentAssignmentsWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -49,19 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                InvestigatorDashboardWidget::class,
-                //RecentAssignmentsWidget::class,
-                // You can keep these if you want them
-                // Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class, // You may want to remove this in production
-
-                // Add these if you've created them
-                // CaseStatisticsWidget::class,
-                // CaseDistributionChart::class,
-                // OfficerPerformanceChart::class,
-                // MonthlyCaseTrendChart::class,
-            ])
+            // Do not register widgets here - they're being handled in the Dashboard class
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Case Management')

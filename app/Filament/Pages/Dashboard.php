@@ -2,11 +2,10 @@
 
 namespace App\Filament\Pages;
 
-// use App\Filament\Widgets\CaseDistributionChart;
-// use App\Filament\Widgets\CaseStatisticsWidget;
 use App\Filament\Widgets\InvestigatorDashboardWidget;
-// use App\Filament\Widgets\MonthlyCaseTrendChart;
-// use App\Filament\Widgets\OfficerPerformanceChart;
+use App\Filament\Widgets\OicCommentsWidget;
+//use App\Filament\Widgets\PendingAcknowledgmentsWidget;
+use App\Filament\Widgets\PendingPinkFilesWidget;
 use App\Filament\Widgets\RecentAssignmentsWidget;
 use App\Models\InquiryFile;
 use App\Models\PinkFile;
@@ -26,6 +25,18 @@ class Dashboard extends BasePage
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
     protected static ?int $navigationSort = -2;
+
+    // Explicitly specify which widgets to use - must be public to match parent class
+    public function getWidgets(): array
+    {
+        return [
+            InvestigatorDashboardWidget::class,
+            PendingPinkFilesWidget::class,
+            //PendingAcknowledgmentsWidget::class,
+            OicCommentsWidget::class,
+            RecentAssignmentsWidget::class,
+        ];
+    }
 
     protected function getHeaderActions(): array
     {
@@ -49,43 +60,17 @@ class Dashboard extends BasePage
         return [];
     }
 
+    // Do not use header widgets to prevent duplication
     protected function getHeaderWidgets(): array
     {
-        $user = Auth::user();
-
-        // Show different widgets based on role
-        if ($user->role_id == 1 || $user->role_id == 3) { // OIC or Admin
-            return [
-                //CaseStatisticsWidget::class,
-                InvestigatorDashboardWidget::class,
-            ];
-        }
-
-        // For Investigators
-        return [
-            InvestigatorDashboardWidget::class,
-        ];
+        return [];
     }
 
-    // protected function getFooterWidgets(): array
-    // {
-    //     $user = Auth::user();
-
-    //     // Show different widgets based on role
-    //     if ($user->role_id == 1 || $user->role_id == 3) { // OIC or Admin
-    //         return [
-    //             CaseDistributionChart::class,
-    //             OfficerPerformanceChart::class,
-    //             MonthlyCaseTrendChart::class,
-    //             RecentAssignmentsWidget::class,
-    //         ];
-    //     }
-
-    //     // For investigators, show a more limited set of widgets
-    //     return [
-    //         RecentAssignmentsWidget::class,
-    //     ];
-    // }
+    // Do not use footer widgets to prevent duplication
+    protected function getFooterWidgets(): array
+    {
+        return [];
+    }
 
     protected function generateStatisticsPDF()
     {

@@ -135,6 +135,16 @@ class PinkFileResource extends Resource
                     })
                     ->placeholder('No Inquiry File'),
 
+                // Add a column to show if inquiry file exists
+                Tables\Columns\IconColumn::make('has_inquiry_file')
+                    ->label('Inquiry File')
+                    ->boolean()
+                    ->getStateUsing(fn (PinkFile $record): bool => $record->inquiryFile !== null)
+                    ->trueIcon('heroicon-o-document-text')
+                    ->falseIcon('heroicon-o-x-mark')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d M Y')
                     ->sortable()
@@ -161,11 +171,39 @@ class PinkFileResource extends Resource
                 Tables\Filters\SelectFilter::make('inquiry_status')
                     ->relationship('inquiryFile.status', 'name')
                     ->label('Case Status'),
+
+                // Add filter for cases without inquiry files
+                Tables\Filters\Filter::make('no_inquiry_file')
+                    ->label('Without Inquiry File')
+                    ->query(fn (Builder $query): Builder => $query->whereDoesntHave('inquiryFile'))
+                    ->toggle(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->color('gray'),
+
+                // Move Create Inquiry File action to the first position and make it more prominent
+                Tables\Actions\Action::make('createInquiryFile')
+                    ->label('Create Inquiry File')
+                    ->icon('heroicon-o-document-plus')
+                    ->url(fn (PinkFile $record): string => route('filament.admin.resources.inquiry-files.create', ['pinkFileId' => $record->id]))
+                    ->color('success')
+                    ->button() // Make it a full button
+                    ->disabled(fn (PinkFile $record): bool => $record->inquiryFile !== null)
+                    ->visible(fn (PinkFile $record): bool =>
+                        // Visible to OIC and investigators
+                        in_array(auth()->user()->role_id, [1, 2]) &&
+                        // And only if no inquiry file exists
+                        $record->inquiryFile === null &&
+                        // And only if the current user is the assigned officer (for investigators)
+                        (auth()->user()->role_id === 1 || auth()->user()->id === $record->assigned_to)
+                    ),
+
+                Tables\Actions\EditAction::make()
+                    ->color('gray'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->color('gray'),
 
                 // Add an action for OIC to add comments
                 Tables\Actions\Action::make('addComment')
@@ -193,8 +231,8 @@ class PinkFileResource extends Resource
 
                             if ($officer && $officer->phone) {
                                 $message = "New comment from OIC for case {$record->complainant_name}: " .
-                                           substr($data['oic_comment'], 0, 100) .
-                                           (strlen($data['oic_comment']) > 100 ? '...' : '');
+                                        substr($data['oic_comment'], 0, 100) .
+                                        (strlen($data['oic_comment']) > 100 ? '...' : '');
 
                                 $sent = SmsService::sendMessage($message, $officer->phone);
 
@@ -224,18 +262,59 @@ class PinkFileResource extends Resource
                             ->send();
                     })
                     ->visible(fn (): bool => auth()->user()->role_id === 1), // Only visible to OIC (role_id 1)
-
-                Tables\Actions\Action::make('createInquiryFile')
-                    ->label('Create Inquiry File')
-                    ->icon('heroicon-o-document-duplicate')
-                    ->url(fn (PinkFile $record): string => route('filament.admin.resources.inquiry-files.create', ['pinkFileId' => $record->id]))
-                    ->color('success')
-                    ->disabled(fn (PinkFile $record): bool => $record->inquiryFile !== null)
-                    ->visible(fn (): bool => in_array(auth()->user()->role_id, [1, 2])), // Visible to OIC and investigators
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
+                    // Add bulk action to send reminders
+                    Tables\Actions\BulkAction::make('sendReminders')
+                        ->label('Send Reminder to Create Inquiry File')
+                        ->icon('heroicon-o-bell-alert')
+                        ->color('warning')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $count = 0;
+
+                            foreach ($records as $record) {
+                                // Skip records that already have an inquiry file
+                                if ($record->inquiryFile !== null) {
+                                    continue;
+                                }
+
+                                // Send notification to the assigned officer
+                                if ($record->assigned_to) {
+                                    $officer = \App\Models\User::find($record->assigned_to);
+
+                                    if ($officer) {
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Case Reminder')
+                                            ->body("Please create an inquiry file for case: {$record->complainant_name}")
+                                            ->actions([
+                                                \Filament\Notifications\Actions\Action::make('createFile')
+                                                    ->button()
+                                                    ->url(route('filament.admin.resources.inquiry-files.create', ['pinkFileId' => $record->id]))
+                                            ])
+                                            ->sendToDatabase($officer);
+
+                                        // Send SMS if officer has a phone number
+                                        if ($officer->phone) {
+                                            $message = "REMINDER: Please create an inquiry file for case '{$record->complainant_name}' as soon as possible.";
+                                            \App\Services\SmsService::sendMessage($message, $officer->phone);
+                                        }
+
+                                        $count++;
+                                    }
+                                }
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Reminders Sent')
+                                ->body("Successfully sent reminders for {$count} cases")
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn (): bool => auth()->user()->role_id === 1) // Only visible to OIC
+                        ->requiresConfirmation(),
                 ]),
             ]);
     }
