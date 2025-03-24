@@ -4,7 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\InvestigatorDashboardWidget;
 use App\Filament\Widgets\OicCommentsWidget;
-//use App\Filament\Widgets\PendingAcknowledgmentsWidget;
+use App\Filament\Widgets\AcknowledgedPinkFilesWidget;
 use App\Filament\Widgets\PendingPinkFilesWidget;
 use App\Filament\Widgets\RecentAssignmentsWidget;
 use App\Models\InquiryFile;
@@ -33,6 +33,7 @@ class Dashboard extends BasePage
             InvestigatorDashboardWidget::class,
             PendingPinkFilesWidget::class,
             //PendingAcknowledgmentsWidget::class,
+            AcknowledgedPinkFilesWidget::class, // Add the new widget
             OicCommentsWidget::class,
             RecentAssignmentsWidget::class,
         ];

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('crime_type_id')->nullable();
             $table->string('priority')->default('normal'); // very_high, high, normal, low
             $table->unsignedBigInteger('assigned_to')->nullable();
+            $table->dateTime('acknowledged_at')->nullable();
             $table->timestamps();
 
             // $table->foreign('pink_file_type_id')->references('id')->on('pink_file_types')->onDelete('set null');

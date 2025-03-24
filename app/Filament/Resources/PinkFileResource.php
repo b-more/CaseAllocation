@@ -121,6 +121,15 @@ class PinkFileResource extends Resource
                     ->label('Assigned To')
                     ->searchable(),
 
+                // Add acknowledgment status column
+                Tables\Columns\IconColumn::make('acknowledged_at')
+                    ->label('Acknowledged')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+
                 // Add the status column (from the related inquiry file)
                 Tables\Columns\TextColumn::make('inquiryFile.status.name')
                     ->label('Status')
@@ -167,6 +176,12 @@ class PinkFileResource extends Resource
                     ->relationship('assignedOfficer', 'name')
                     ->label('Assigned Officer'),
 
+                // Add filter for acknowledgment status
+                Tables\Filters\TernaryFilter::make('acknowledged')
+                    ->label('Acknowledged')
+                    ->nullable()
+                    ->attribute('acknowledged_at'),
+
                 // Add filter for inquiry file status
                 Tables\Filters\SelectFilter::make('inquiry_status')
                     ->relationship('inquiryFile.status', 'name')
@@ -182,6 +197,43 @@ class PinkFileResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->color('gray'),
 
+                // Add Acknowledge action for investigators
+                Tables\Actions\Action::make('acknowledge')
+                    ->label('Acknowledge')
+                    ->icon('heroicon-o-check-badge')
+                    ->action(function (PinkFile $record) {
+                        // Add logic to acknowledge the case
+                        $record->acknowledge();
+
+                        // Notify the OIC users about the acknowledgment
+                        $oicUsers = User::where('role_id', 1)->get();
+                        foreach ($oicUsers as $oicUser) {
+                            Notification::make()
+                                ->title('Case Acknowledged')
+                                ->body('Case ' . $record->complainant_name . ' has been acknowledged by ' . Auth::user()->name)
+                                ->sendToDatabase($oicUser);
+
+                            // Send SMS notification if OIC has a phone number
+                            if ($oicUser->phone) {
+                                $message = "Case acknowledgement: {$record->complainant_name} has been acknowledged by " . Auth::user()->name;
+                                SmsService::sendMessage($message, $oicUser->phone);
+                            }
+                        }
+
+                        Notification::make()
+                            ->title('Case Acknowledged')
+                            ->success()
+                            ->send();
+                    })
+                    ->requiresConfirmation()
+                    ->visible(function (PinkFile $record) {
+                        $user = Auth::user();
+                        return $user->id === $record->assigned_to &&
+                            $record->acknowledged_at === null &&
+                            $record->inquiryFile === null;
+                    })
+                    ->color('success'),
+
                 // Move Create Inquiry File action to the first position and make it more prominent
                 Tables\Actions\Action::make('createInquiryFile')
                     ->label('Create Inquiry File')
@@ -195,6 +247,8 @@ class PinkFileResource extends Resource
                         in_array(auth()->user()->role_id, [1, 2]) &&
                         // And only if no inquiry file exists
                         $record->inquiryFile === null &&
+                        // And only if the case has been acknowledged
+                        $record->acknowledged_at !== null &&
                         // And only if the current user is the assigned officer (for investigators)
                         (auth()->user()->role_id === 1 || auth()->user()->id === $record->assigned_to)
                     ),
@@ -278,6 +332,11 @@ class PinkFileResource extends Resource
                             foreach ($records as $record) {
                                 // Skip records that already have an inquiry file
                                 if ($record->inquiryFile !== null) {
+                                    continue;
+                                }
+
+                                // Skip records that haven't been acknowledged
+                                if ($record->acknowledged_at === null) {
                                     continue;
                                 }
 

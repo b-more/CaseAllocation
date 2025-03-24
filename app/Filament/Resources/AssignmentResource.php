@@ -359,6 +359,7 @@ class AssignmentResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return in_array(Auth::user()->role_id, [1, 2, 3]);
+        //return in_array(Auth::user()->role_id, [1, 2, 3]);
+        return false;
     }
 }

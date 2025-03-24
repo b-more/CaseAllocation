@@ -24,11 +24,13 @@ class PinkFile extends Model
         'date_time_of_occurrence',
         'crime_type_id',
         'priority', //very high, high, normal, low
-        'assigned_to'
+        'assigned_to',
+        'acknowledged_at'
     ];
 
     protected $casts = [
         'date_time_of_occurrence' => 'datetime',
+        'acknowledged_at' => 'datetime',
     ];
 
     /**
@@ -82,5 +84,22 @@ class PinkFile extends Model
             'normal' => 'Normal',
             'low' => 'Low',
         ];
+    }
+
+    /**
+     * Check if the pink file has been acknowledged.
+     */
+    public function isAcknowledged(): bool
+    {
+        return $this->acknowledged_at !== null;
+    }
+
+    /**
+     * Acknowledge the pink file.
+     */
+    public function acknowledge(): void
+    {
+        $this->acknowledged_at = now();
+        $this->save();
     }
 }

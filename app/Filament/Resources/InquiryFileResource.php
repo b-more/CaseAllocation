@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Columns\Summarizers\Sum;
 
 class InquiryFileResource extends Resource
 {
@@ -45,88 +46,118 @@ class InquiryFileResource extends Resource
                 Forms\Components\Group::make()
                     ->schema([
                         Forms\Components\Section::make('File Information')
+                            ->description('Basic details about the inquiry file')
+                            ->icon('heroicon-o-document-text')
                             ->schema([
-                                Forms\Components\TextInput::make('if_number')
-                                    ->label('Inquiry File Number')
-                                    ->default(fn() => InquiryFile::generateInquiryNumber())
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('if_number')
+                                            ->label('Inquiry File Number')
+                                            ->default(fn() => InquiryFile::generateInquiryNumber())
+                                            ->dehydrated()
+                                            ->required()
+                                            //->disabled()
+                                            ->extraInputAttributes(['class' => 'bg-gray-50 font-medium']),
 
-                                    ->dehydrated()
-                                    ->required(),
+                                        Forms\Components\Group::make([
+                                            Forms\Components\DatePicker::make('date')
+                                                ->label('Date')
+                                                ->default(now())
+                                                ->disabled()
+                                                ->required(),
 
-                                Forms\Components\TimePicker::make('time')
-                                    ->seconds(false)
-                                    ->label('Time of Opening File')
-                                    ->default(now())
-                                    ->disabled()
-                                    ->required(),
+                                            Forms\Components\TimePicker::make('time')
+                                                ->seconds(false)
+                                                ->label('Time')
+                                                ->default(now())
+                                                ->disabled()
+                                                ->required(),
+                                        ])->columns(2),
+                                    ]),
 
-                                Forms\Components\DatePicker::make('date')
-                                    ->label('Date of Opening File')
-                                    ->default(now())
-                                    ->disabled()
-                                    ->required(),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('cr_number')
+                                            ->label('CR Number')
+                                            ->placeholder('Enter CR number')
+                                            ->maxLength(255)
+                                            ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
+                                                // If creating a new record, hide this field
+                                                if ($operation === 'create') {
+                                                    return false;
+                                                }
 
-                                Forms\Components\TextInput::make('cr_number')
-                                    ->label('CR Number')
-                                    ->placeholder('Enter CR number')
-                                    ->maxLength(255)
-                                    ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
-                                        // If creating a new record, hide this field
-                                        if ($operation === 'create') {
-                                            return false;
-                                        }
+                                                // If editing, show only for court-related statuses
+                                                $statusId = $get('if_status_id');
+                                                return in_array($statusId, [3, 4]); // Taken to NPA or Court
+                                            }),
 
-                                        // If editing, show only for court-related statuses
-                                        $statusId = $get('if_status_id');
-                                        return in_array($statusId, [3, 4]); // Taken to NPA or Court
-                                    }),
+                                        Forms\Components\TextInput::make('police_station')
+                                            ->label('Police Station/Post')
+                                            ->placeholder('Enter police station name')
+                                            ->maxLength(255)
+                                            ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
+                                                // If creating a new record, hide this field
+                                                if ($operation === 'create') {
+                                                    return false;
+                                                }
 
-                                Forms\Components\TextInput::make('police_station')
-                                    ->label('Police Station/Post')
-                                    ->placeholder('Enter police station name')
-                                    ->maxLength(255)
-                                    ->visible(function (callable $get, ?string $operation = null, ?Model $record = null) {
-                                        // If creating a new record, hide this field
-                                        if ($operation === 'create') {
-                                            return false;
-                                        }
-
-                                        // If editing, show only for court-related statuses
-                                        $statusId = $get('if_status_id');
-                                        return in_array($statusId, [3, 4]); // Taken to NPA or Court
-                                    }),
+                                                // If editing, show only for court-related statuses
+                                                $statusId = $get('if_status_id');
+                                                return in_array($statusId, [3, 4]); // Taken to NPA or Court
+                                            }),
+                                    ]),
 
                                 Forms\Components\Hidden::make('pink_file_id')
                                     ->default(fn() => request()->get('pinkFileId')),
                             ]),
 
                         Forms\Components\Section::make('Case Details')
+                            ->description('Information about the complainant and offence')
+                            ->icon('heroicon-o-clipboard-document-list')
+                            ->collapsible()
                             ->schema([
-                                Forms\Components\TextInput::make('complainant')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->default(function () {
-                                        $pinkFileId = request()->get('pinkFileId');
-                                        if ($pinkFileId) {
-                                            $pinkFile = PinkFile::find($pinkFileId);
-                                            return $pinkFile ? $pinkFile->complainant_name : '';
-                                        }
-                                        return '';
-                                    }),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('complainant')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->default(function () {
+                                                $pinkFileId = request()->get('pinkFileId');
+                                                if ($pinkFileId) {
+                                                    $pinkFile = PinkFile::find($pinkFileId);
+                                                    return $pinkFile ? $pinkFile->complainant_name : '';
+                                                }
+                                                return '';
+                                            }),
 
-                                Forms\Components\TextInput::make('offence')
-                                    ->required()
-                                    ->maxLength(255),
+                                        Forms\Components\TextInput::make('offence')
+                                            ->required()
+                                            ->maxLength(255),
+                                    ]),
 
-                                Forms\Components\TextInput::make('value_of_property_stolen')
-                                    ->label('Value of Property Stolen (ZMW)')
-                                    ->numeric()
-                                    ->prefix('ZMW'),
+                                Forms\Components\Section::make('Property Valuation')
+                                    ->description('Details about stolen and recovered property')
+                                    ->compact()
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->icon('heroicon-o-banknotes')
+                                    ->schema([
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('value_of_property_stolen')
+                                                    ->label('Value of Property Stolen (ZMW)')
+                                                    ->numeric()
+                                                    ->prefix('ZMW')
+                                                    ->extraInputAttributes(['class' => 'text-red-600']),
 
-                                Forms\Components\TextInput::make('value_of_property_recovered')
-                                    ->label('Value of Property Recovered (ZMW)')
-                                    ->numeric()
-                                    ->prefix('ZMW'),
+                                                Forms\Components\TextInput::make('value_of_property_recovered')
+                                                    ->label('Value of Property Recovered (ZMW)')
+                                                    ->numeric()
+                                                    ->prefix('ZMW')
+                                                    ->extraInputAttributes(['class' => 'text-green-600']),
+                                            ]),
+                                    ]),
 
                                 Repeater::make('accused_persons')
                                     ->label('Accused Persons')
@@ -135,6 +166,7 @@ class InquiryFileResource extends Resource
                                             ->required()
                                             ->maxLength(255),
 
+                                        // Commented out fields could be added back in the future
                                         // Forms\Components\TextInput::make('identification')
                                         //     ->label('ID/Passport')
                                         //     ->maxLength(255),
@@ -149,7 +181,7 @@ class InquiryFileResource extends Resource
                                     ])
                                     ->columns(2)
                                     ->collapsible()
-                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'New Accused Person')
                                     ->defaultItems(1),
                             ]),
                     ])
@@ -158,6 +190,8 @@ class InquiryFileResource extends Resource
                 Forms\Components\Group::make()
                     ->schema([
                         Forms\Components\Section::make('Status Information')
+                            ->description('Current status and related information')
+                            ->icon('heroicon-o-information-circle')
                             ->schema([
                                 Forms\Components\Select::make('if_status_id')
                                     ->relationship('status', 'name')
@@ -201,11 +235,13 @@ class InquiryFileResource extends Resource
                                 Forms\Components\Select::make('court_type_id')
                                     ->relationship('courtType', 'name')
                                     ->label('Court Type')
+                                    ->searchable()
                                     ->visible(fn (callable $get) => $get('court_type_visible') || in_array($get('if_status_id'), [3, 4])),
 
                                 Forms\Components\Select::make('court_stage_id')
                                     ->relationship('courtStage', 'name')
                                     ->label('Court Stage')
+                                    ->searchable()
                                     ->visible(fn (callable $get) => $get('court_stage_visible') || $get('if_status_id') == 4),
 
                                 // For OIC: Add reason for status change
@@ -218,29 +254,37 @@ class InquiryFileResource extends Resource
                             ]),
 
                         Forms\Components\Section::make('Investigation Progress')
+                            ->description('Track key milestones in the investigation')
+                            ->collapsible()
+                            ->icon('heroicon-o-check-badge')
                             ->schema([
-                                Forms\Components\Checkbox::make('contacted_complainant')
-                                    ->label('Contacted Complainant'),
-                                    //->helperText('Check when you have made initial contact with the complainant'),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\Checkbox::make('contacted_complainant')
+                                            ->label('Contacted Complainant')
+                                            ->helperText('Initial contact made with complainant'),
 
-                                Forms\Components\Checkbox::make('recorded_statement')
-                                    ->label('Recorded Complainant Statement'),
-                                    //->helperText('Check when you have recorded the complainant\'s statement'),
+                                        Forms\Components\Checkbox::make('recorded_statement')
+                                            ->label('Recorded Statement')
+                                            ->helperText('Complainant statement recorded'),
 
-                                Forms\Components\Checkbox::make('apprehended_suspects')
-                                    ->label('Apprehended Suspect(s)'),
-                                    //->helperText('Check when suspect(s) have been apprehended'),
+                                        Forms\Components\Checkbox::make('apprehended_suspects')
+                                            ->label('Apprehended Suspect(s)')
+                                            ->helperText('Suspect(s) have been apprehended'),
 
-                                Forms\Components\Checkbox::make('warned_cautioned')
-                                    ->label('Warned & Cautioned Suspect(s)'),
-                                    //->helperText('Check when suspect(s) have been warned and cautioned'),
+                                        Forms\Components\Checkbox::make('warned_cautioned')
+                                            ->label('Warned & Cautioned')
+                                            ->helperText('Suspect(s) warned and cautioned'),
 
-                                Forms\Components\Checkbox::make('released_on_bond')
-                                    ->label('Released Suspect(s) on Bond'),
-                                    //->helperText('Check when suspect(s) have been released on bond'),
+                                        Forms\Components\Checkbox::make('released_on_bond')
+                                            ->label('Released On Bond')
+                                            ->helperText('Suspect(s) released on bond'),
+                                    ]),
                             ]),
 
                         Forms\Components\Section::make('Officer Information')
+                            ->description('Assigned officer details')
+                            ->icon('heroicon-o-user')
                             ->schema([
                                 Forms\Components\Select::make('dealing_officer')
                                     ->label('Dealing Officer')
@@ -298,6 +342,8 @@ class InquiryFileResource extends Resource
 
                         // For OIC: Add comments section
                         Forms\Components\Section::make('OIC Comments')
+                            ->description('Direction and feedback from Officer in Charge')
+                            ->icon('heroicon-o-chat-bubble-left-ellipsis')
                             ->schema([
                                 Forms\Components\Textarea::make('oic_comment')
                                     ->label('Officer in Charge Comment')
@@ -306,6 +352,7 @@ class InquiryFileResource extends Resource
 
                                 Forms\Components\Checkbox::make('send_sms')
                                     ->label('Send SMS notification to officer')
+                                    ->helperText('Officer will receive an SMS notification about this comment')
                                     ->default(true)
                                     ->dehydrated(false),
                             ])
@@ -340,12 +387,16 @@ class InquiryFileResource extends Resource
                     ->label('Value Stolen')
                     ->money('ZMW')
                     ->sortable()
+                    ->alignEnd()
+                    ->summarize(Sum::make()->label('Total'))
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('value_of_property_recovered')
                     ->label('Value Recovered')
                     ->money('ZMW')
                     ->sortable()
+                    ->alignEnd()
+                    ->summarize(Sum::make()->label('Total'))
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('status.name')

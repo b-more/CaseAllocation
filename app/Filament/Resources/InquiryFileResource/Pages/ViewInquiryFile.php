@@ -47,38 +47,38 @@ class ViewInquiryFile extends ViewRecord
         }
 
         // Acknowledgment action for investigators
-        if ($user->role_id === 2 && $user->id === $this->record->dealing_officer && $this->record->acknowledged_at === null) {
-            $actions[] = Action::make('acknowledge')
-                ->label('Acknowledge')
-                ->icon('heroicon-o-check-badge')
-                ->action(function () {
-                    // Add logic to acknowledge the case
-                    $this->record->acknowledged_at = now();
-                    $this->record->save();
+        // if ($user->role_id === 2 && $user->id === $this->record->dealing_officer && $this->record->acknowledged_at === null) {
+        //     $actions[] = Action::make('acknowledge')
+        //         ->label('Acknowledge')
+        //         ->icon('heroicon-o-check-badge')
+        //         ->action(function () {
+        //             // Add logic to acknowledge the case
+        //             $this->record->acknowledged_at = now();
+        //             $this->record->save();
 
-                    // Notify the OIC users about the acknowledgment
-                    $oicUsers = User::where('role_id', 1)->get();
-                    foreach ($oicUsers as $oicUser) {
-                        Notification::make()
-                            ->title('Case Acknowledged')
-                            ->body('Inquiry file ' . $this->record->if_number . ' has been acknowledged by ' . Auth::user()->name)
-                            ->sendToDatabase($oicUser);
+        //             // Notify the OIC users about the acknowledgment
+        //             $oicUsers = User::where('role_id', 1)->get();
+        //             foreach ($oicUsers as $oicUser) {
+        //                 Notification::make()
+        //                     ->title('Case Acknowledged')
+        //                     ->body('Inquiry file ' . $this->record->if_number . ' has been acknowledged by ' . Auth::user()->name)
+        //                     ->sendToDatabase($oicUser);
 
-                        // Send SMS notification if OIC has a phone number
-                        if ($oicUser->phone) {
-                            $message = "Case acknowledgement: {$this->record->if_number} has been acknowledged by " . Auth::user()->name;
-                            SmsService::sendMessage($message, $oicUser->phone);
-                        }
-                    }
+        //                 // Send SMS notification if OIC has a phone number
+        //                 if ($oicUser->phone) {
+        //                     $message = "Case acknowledgement: {$this->record->if_number} has been acknowledged by " . Auth::user()->name;
+        //                     SmsService::sendMessage($message, $oicUser->phone);
+        //                 }
+        //             }
 
-                    Notification::make()
-                        ->title('Case Acknowledged')
-                        ->success()
-                        ->send();
-                })
-                ->requiresConfirmation()
-                ->color('success');
-        }
+        //             Notification::make()
+        //                 ->title('Case Acknowledged')
+        //                 ->success()
+        //                 ->send();
+        //         })
+        //         ->requiresConfirmation()
+        //         ->color('success');
+        // }
 
         // Status update action for investigators - only if acknowledged
         if ($user->role_id === 2 && $user->id === $this->record->dealing_officer && $this->record->acknowledged_at !== null) {
