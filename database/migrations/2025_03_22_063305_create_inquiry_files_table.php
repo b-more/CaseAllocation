@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('police_station')->nullable();
             $table->string('complainant')->nullable();
             $table->string('offence')->nullable();
+            $table->UnsignedBigInteger('offence_id')->nullable();
             $table->decimal('value_of_property_stolen', 15, 2)->nullable();
             $table->decimal('value_of_property_recovered', 15, 2)->nullable();
             $table->text('accused')->nullable();

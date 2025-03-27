@@ -27,7 +27,15 @@ class CrimeTypeSeeder extends Seeder
                 'description' => 'Cases involving land disputes'
             ],
             [
-                'name' => 'Mining',
+                'name' => 'DEC',
+                'description' => 'Cases involving mines'
+            ],
+            [
+                'name' => 'ACC',
+                'description' => 'Cases involving mines'
+            ],
+            [
+                'name' => 'OP',
                 'description' => 'Cases involving mines'
             ]
         ]);

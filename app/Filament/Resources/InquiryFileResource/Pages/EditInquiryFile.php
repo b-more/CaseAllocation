@@ -59,7 +59,7 @@ class EditInquiryFile extends EditRecord
                 })
                 ->color('success'),
 
-            Actions\Action::make('changeStatus')
+                Actions\Action::make('changeStatus')
                 ->label('Update Status')
                 ->icon('heroicon-o-arrow-path')
                 ->form([
@@ -68,18 +68,39 @@ class EditInquiryFile extends EditRecord
                         ->options(function () {
                             return IfStatus::pluck('name', 'id')->toArray();
                         })
-                        ->required(),
+                        ->required()
+                        ->disabled()
+                        ->reactive(), // Make this reactive to show/hide case close reason field
+
+                    \Filament\Forms\Components\Textarea::make('case_close_reason')
+                        ->label('Case Close Reason')
+                        ->placeholder('Please provide a reason for closing this case')
+                        ->required()
+                        ->maxLength(500)
+                        ->visible(fn (callable $get) => $get('if_status_id') == 5), // Only visible when status ID is 5 (Case Closed)
 
                     \Filament\Forms\Components\Textarea::make('reason')
-                        ->label('Reason for Change')
-                        ->required(),
+                        ->label('Reason for Status Change')
+                        ->required()
+                        ->maxLength(500),
                 ])
                 ->action(function (array $data) {
                     // Record the old status
                     $oldStatus = $this->record->if_status_id;
 
+                    // Build update data
+                    $updateData = ['if_status_id' => $data['if_status_id']];
+
+                    // Add case close reason if status is "Case Closed"
+                    if ($data['if_status_id'] == 5 && isset($data['case_close_reason'])) {
+                        $updateData['case_close_reason'] = $data['case_close_reason'];
+                    } else {
+                        // Clear case close reason if changing away from "Case Closed"
+                        $updateData['case_close_reason'] = null;
+                    }
+
                     // Update the record with the new status
-                    $this->record->update(['if_status_id' => $data['if_status_id']]);
+                    $this->record->update($updateData);
 
                     // Create a status change record
                     $statusChange = CaseStatus::create([

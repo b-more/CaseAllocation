@@ -10,6 +10,7 @@ use App\Models\InquiryFile;
 use App\Models\Role;
 use App\Models\PinkFile;
 use App\Models\User;
+use App\Models\Offence;
 use App\Services\SmsService;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -131,9 +132,38 @@ class InquiryFileResource extends Resource
                                                 return '';
                                             }),
 
-                                        Forms\Components\TextInput::make('offence')
+                                            Forms\Components\Select::make('offence_id')
+                                            ->label('Offence')
+                                            ->relationship('offence', 'name')
+                                            ->searchable()
+                                            ->preload()
                                             ->required()
-                                            ->maxLength(255),
+                                            ->createOptionForm([
+                                                Forms\Components\TextInput::make('name')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                                Forms\Components\TextInput::make('source')
+                                                    ->label('Legal Source')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                                Forms\Components\TextInput::make('section')
+                                                    ->label('Section/Article')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                                Forms\Components\Textarea::make('description')
+                                                    ->required()
+                                                    ->maxLength(65535),
+                                            ])
+                                            ->optionsLimit(50)
+                                            ->afterStateUpdated(function (callable $set, $state) {
+                                                if ($state) {
+                                                    // Get the offence name for the legacy field
+                                                    $offence = \App\Models\Offence::find($state);
+                                                    if ($offence) {
+                                                        $set('offence', $offence->name);
+                                                    }
+                                                }
+                                            }),
                                     ]),
 
                                 Forms\Components\Section::make('Property Valuation')

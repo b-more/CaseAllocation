@@ -19,6 +19,7 @@ class InquiryFile extends Model
         'police_station', //police station/post where cr number was obtained
         'complainant',
         'offence',
+        'offence_id',
         'value_of_property_stolen',
         'value_of_property_recovered',
         'accused',
@@ -74,6 +75,11 @@ class InquiryFile extends Model
     public function courtStage(): BelongsTo
     {
         return $this->belongsTo(CourtStage::class);
+    }
+
+    public function offence(): BelongsTo
+    {
+        return $this->belongsTo(Offence::class, 'offence_id');
     }
 
     /**

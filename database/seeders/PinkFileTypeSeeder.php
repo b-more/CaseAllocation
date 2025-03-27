@@ -15,12 +15,12 @@ class PinkFileTypeSeeder extends Seeder
     {
         DB::table('pink_file_types')->insert([
             [
-                'name' => 'Crime Register',
-                'description' => 'All criminal matters register'
+                'name' => 'Complaint General (P/S 5/1)',
+                'description' => 'Criminal matters'
             ],
             [
-                'name' => 'FIC',
-                'description' => 'Financial intelligence cases'
+                'name' => 'Criminal Investigations (P/S 3/26/1B)',
+                'description' => 'General Criminal investigation'
             ]
         ]);
     }
