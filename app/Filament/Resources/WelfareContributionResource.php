@@ -25,6 +25,8 @@ class WelfareContributionResource extends Resource
 
     protected static ?string $navigationLabel = 'Welfare Contributions';
 
+    protected static ?string $navigationGroup = 'Offence Management';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
