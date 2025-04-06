@@ -160,7 +160,7 @@ class InvestigatorDashboardWidget extends BaseWidget
                 ->description('Active investigations')
                 ->color('info'),
 
-            Stat::make('Top Investigators', $topInvestigatorsText ?: 'None')
+            Stat::make('Investigators', $topInvestigatorsText ?: 'None')
                 ->description('By active case count')
                 ->color('gray'),
         ];

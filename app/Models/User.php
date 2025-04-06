@@ -112,4 +112,17 @@ class User extends Authenticatable
     {
         return $this->role_id === Role::INVESTIGATOR; // 2
     }
+
+    public function welfareContributions(): HasMany
+    {
+        return $this->hasMany(WelfareContribution::class);
+    }
+
+    /**
+     * Get welfare contributions recorded by this user.
+     */
+    public function recordedContributions(): HasMany
+    {
+        return $this->hasMany(WelfareContribution::class, 'recorded_by');
+    }
 }
