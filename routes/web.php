@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InquiryFileController;
 use App\Http\Controllers\InvestigatorStatsController;
 use App\Http\Controllers\WelfareController;
+use App\Http\Controllers\ReportController;
 
 
 Route::get('/', function () {
@@ -33,3 +34,6 @@ Route::get('/welfare/history/{user}', [\App\Http\Controllers\WelfareController::
 Route::get('/welfare/export-report', [\App\Http\Controllers\WelfareController::class, 'exportReport'])
     ->middleware(['auth'])
     ->name('welfare.export-report');
+
+Route::get('/reports/generate-pdf', [ReportController::class, 'generatePdf'])
+->name('reports.generate-pdf');
