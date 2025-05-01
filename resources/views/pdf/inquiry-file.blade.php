@@ -401,7 +401,12 @@
                     <strong>Complainant:</strong> {{ $inquiryFile->complainant }}
                 </div>
                 <div class="info-item">
-                    <strong>Offence:</strong> {{ $inquiryFile->offence }}
+                    <strong>Offence:</strong>
+                    @if($inquiryFile->offence_id && isset($inquiryFile->offence) && is_object($inquiryFile->offence))
+                        {{ $inquiryFile->offence->name }}
+                    @else
+                        {{ $inquiryFile->offence }}
+                    @endif
                 </div>
                 @if($inquiryFile->court_type)
                 <div class="info-item">

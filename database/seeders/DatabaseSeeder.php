@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CourtStageSeeder::class);
         $this->call(IfStatusSeeder::class);
         $this->call(OffenceSeeder::class);
-        $this->call(PinkFileSeeder::class);
-        $this->call(InquiryFileSeeder::class);
+        // $this->call(PinkFileSeeder::class);
+        // $this->call(InquiryFileSeeder::class);
     }
 }

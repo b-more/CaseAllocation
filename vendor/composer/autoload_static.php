@@ -41,8 +41,8 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         '9261e07cd92c53dcc971c7c88c176c04' => __DIR__ . '/..' . '/danharrin/date-format-converter/src/helpers.php',
         '9720327d09ed9a4ba00c9b5071b71c7d' => __DIR__ . '/..' . '/danharrin/date-format-converter/src/standards.php',
         '2ad94ea6f6f6013119e9abcf4e302a08' => __DIR__ . '/..' . '/filament/forms/src/helpers.php',
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         'b69d5f1f95cd1ed438c038b6cbcc45b5' => __DIR__ . '/..' . '/filament/notifications/src/Testing/Autoload.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '89e9938b64b06cc502d7ceca69a380fe' => __DIR__ . '/..' . '/filament/filament/src/global_helpers.php',
         'ebb446bb6d02e998480945fbbb73dc64' => __DIR__ . '/..' . '/filament/filament/src/helpers.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
@@ -171,6 +171,13 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'K' => 
         array (
             'Kirschbaum\\PowerJoins\\' => 22,
+        ),
+        'J' => 
+        array (
+            'Joaopaulolndev\\FilamentEditProfile\\Database\\Factories\\' => 54,
+            'Joaopaulolndev\\FilamentEditProfile\\' => 35,
+            'Jenssegers\\Agent\\' => 17,
+            'Jaybizzle\\CrawlerDetect\\' => 24,
         ),
         'I' => 
         array (
@@ -560,6 +567,22 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         array (
             0 => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src',
         ),
+        'Joaopaulolndev\\FilamentEditProfile\\Database\\Factories\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/database/factories',
+        ),
+        'Joaopaulolndev\\FilamentEditProfile\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src',
+        ),
+        'Jenssegers\\Agent\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jenssegers/agent/src',
+        ),
+        'Jaybizzle\\CrawlerDetect\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src',
+        ),
         'Illuminate\\Support\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Macroable',
@@ -747,6 +770,13 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
                 0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
             ),
         ),
+        'D' => 
+        array (
+            'Detection' => 
+            array (
+                0 => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -782,11 +812,21 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Filament\\Resources\\PinkFileResource\\Pages\\ListPinkFiles' => __DIR__ . '/../..' . '/app/Filament/Resources/PinkFileResource/Pages/ListPinkFiles.php',
         'App\\Filament\\Resources\\PinkFileResource\\Pages\\ViewPinkFile' => __DIR__ . '/../..' . '/app/Filament/Resources/PinkFileResource/Pages/ViewPinkFile.php',
         'App\\Filament\\Resources\\PinkFileResource\\RelationManagers\\InquiryFilesRelationManager' => __DIR__ . '/../..' . '/app/Filament/Resources/PinkFileResource/RelationManagers/InquiryFilesRelationManager.php',
+        'App\\Filament\\Resources\\ReportResource' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource.php',
+        'App\\Filament\\Resources\\ReportResource\\Pages\\CreateReport' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource/Pages/CreateReport.php',
+        'App\\Filament\\Resources\\ReportResource\\Pages\\EditReport' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource/Pages/EditReport.php',
+        'App\\Filament\\Resources\\ReportResource\\Pages\\ListReports' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource/Pages/ListReports.php',
+        'App\\Filament\\Resources\\ReportResource\\Pages\\Statistics' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource/Pages/Statistics.php',
+        'App\\Filament\\Resources\\ReportResource\\Pages\\ViewStatistics' => __DIR__ . '/../..' . '/app/Filament/Resources/ReportResource/Pages/ViewStatistics.php',
         'App\\Filament\\Resources\\UserResource' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource.php',
         'App\\Filament\\Resources\\UserResource\\Pages\\CreateUser' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource/Pages/CreateUser.php',
         'App\\Filament\\Resources\\UserResource\\Pages\\EditUser' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource/Pages/EditUser.php',
         'App\\Filament\\Resources\\UserResource\\Pages\\ListUsers' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource/Pages/ListUsers.php',
         'App\\Filament\\Resources\\UserResource\\Pages\\ViewUser' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource/Pages/ViewUser.php',
+        'App\\Filament\\Resources\\WelfareContributionResource' => __DIR__ . '/../..' . '/app/Filament/Resources/WelfareContributionResource.php',
+        'App\\Filament\\Resources\\WelfareContributionResource\\Pages\\CreateWelfareContribution' => __DIR__ . '/../..' . '/app/Filament/Resources/WelfareContributionResource/Pages/CreateWelfareContribution.php',
+        'App\\Filament\\Resources\\WelfareContributionResource\\Pages\\EditWelfareContribution' => __DIR__ . '/../..' . '/app/Filament/Resources/WelfareContributionResource/Pages/EditWelfareContribution.php',
+        'App\\Filament\\Resources\\WelfareContributionResource\\Pages\\ListWelfareContributions' => __DIR__ . '/../..' . '/app/Filament/Resources/WelfareContributionResource/Pages/ListWelfareContributions.php',
         'App\\Filament\\Widgets\\AcknowledgedCasesWidget' => __DIR__ . '/../..' . '/app/Filament/Widgets/AcknowledgedCasesWidget.php',
         'App\\Filament\\Widgets\\AcknowledgedPinkFilesWidget' => __DIR__ . '/../..' . '/app/Filament/Widgets/AcknowledgedPinkFilesWidget.php',
         'App\\Filament\\Widgets\\InvestigatorDashboardWidget' => __DIR__ . '/../..' . '/app/Filament/Widgets/InvestigatorDashboardWidget.php',
@@ -797,6 +837,8 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\InquiryFileController' => __DIR__ . '/../..' . '/app/Http/Controllers/InquiryFileController.php',
         'App\\Http\\Controllers\\InvestigatorStatsController' => __DIR__ . '/../..' . '/app/Http/Controllers/InvestigatorStatsController.php',
+        'App\\Http\\Controllers\\ReportController' => __DIR__ . '/../..' . '/app/Http/Controllers/ReportController.php',
+        'App\\Http\\Controllers\\WelfareController' => __DIR__ . '/../..' . '/app/Http/Controllers/WelfareController.php',
         'App\\Models\\Accused' => __DIR__ . '/../..' . '/app/Models/Accused.php',
         'App\\Models\\Assignment' => __DIR__ . '/../..' . '/app/Models/Assignment.php',
         'App\\Models\\AuditTrail' => __DIR__ . '/../..' . '/app/Models/AuditTrail.php',
@@ -813,6 +855,8 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Models\\PinkFileType' => __DIR__ . '/../..' . '/app/Models/PinkFileType.php',
         'App\\Models\\Role' => __DIR__ . '/../..' . '/app/Models/Role.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Models\\WelfareContribution' => __DIR__ . '/../..' . '/app/Models/WelfareContribution.php',
+        'App\\Models\\WelfareMonth' => __DIR__ . '/../..' . '/app/Models/WelfareMonth.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\Filament\\AdminPanelProvider' => __DIR__ . '/../..' . '/app/Providers/Filament/AdminPanelProvider.php',
         'App\\Services\\SmsService' => __DIR__ . '/../..' . '/app/Services/SmsService.php',
@@ -1035,6 +1079,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'DeepCopy\\TypeFilter\\Spl\\SplDoublyLinkedListFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/SplDoublyLinkedListFilter.php',
         'DeepCopy\\TypeFilter\\TypeFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/TypeFilter.php',
         'DeepCopy\\TypeMatcher\\TypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeMatcher/TypeMatcher.php',
+        'Detection\\MobileDetect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced/Detection/MobileDetect.php',
         'Dflydev\\DotAccessData\\Data' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Data.php',
         'Dflydev\\DotAccessData\\DataInterface' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/DataInterface.php',
         'Dflydev\\DotAccessData\\Exception\\DataException' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Exception/DataException.php',
@@ -4803,6 +4848,30 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'Illuminate\\View\\ViewFinderInterface' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewFinderInterface.php',
         'Illuminate\\View\\ViewName' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewName.php',
         'Illuminate\\View\\ViewServiceProvider' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
+        'Jaybizzle\\CrawlerDetect\\CrawlerDetect' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/CrawlerDetect.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\AbstractProvider' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/AbstractProvider.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Crawlers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Crawlers.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Exclusions' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Exclusions.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Headers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Headers.php',
+        'Jenssegers\\Agent\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Agent.php',
+        'Jenssegers\\Agent\\AgentServiceProvider' => __DIR__ . '/..' . '/jenssegers/agent/src/AgentServiceProvider.php',
+        'Jenssegers\\Agent\\Facades\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Facades/Agent.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Commands\\FilamentEditProfileCommand' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Commands/FilamentEditProfileCommand.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Concerns\\HasSort' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Concerns/HasSort.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Concerns\\HasUser' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Concerns/HasUser.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Facades\\FilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Facades/FilamentEditProfile.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfile.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfilePlugin' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfilePlugin.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfileServiceProvider' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfileServiceProvider.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\BaseProfileForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/BaseProfileForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\BrowserSessionsForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/BrowserSessionsForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\CustomFieldsForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/CustomFieldsForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\DeleteAccountForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/DeleteAccountForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\EditPasswordForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/EditPasswordForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\EditProfileForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/EditProfileForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\SanctumTokens' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/SanctumTokens.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Pages\\EditProfilePage' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Pages/EditProfilePage.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Testing\\TestsFilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Testing/TestsFilamentEditProfile.php',
         'Kirschbaum\\PowerJoins\\EloquentJoins' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/EloquentJoins.php',
         'Kirschbaum\\PowerJoins\\FakeJoinCallback' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/FakeJoinCallback.php',
         'Kirschbaum\\PowerJoins\\JoinsHelper' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/JoinsHelper.php',
@@ -5812,6 +5881,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'Matrix\\Operators\\Multiplication' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/Operators/Multiplication.php',
         'Matrix\\Operators\\Operator' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/Operators/Operator.php',
         'Matrix\\Operators\\Subtraction' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/Operators/Subtraction.php',
+        'Mobile_Detect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/Mobile_Detect.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegrationAssertPostConditions' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegrationAssertPostConditions.php',
         'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',

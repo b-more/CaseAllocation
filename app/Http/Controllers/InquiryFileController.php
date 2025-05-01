@@ -18,7 +18,9 @@ class InquiryFileController extends Controller
         'courtType',
         'courtStage',
         'officer',
+        'offence',
         'pinkFile',
+
     ])->findOrFail($id);
 
     // Get accused persons
